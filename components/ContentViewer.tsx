@@ -17,8 +17,8 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({ module, onBack }) 
   useEffect(() => {
     // Generate a specific image for this module when it loads
     const fetchImage = async () => {
-        const img = await generateHeroImage(`${module.id} ${module.title}`);
-        setModuleImage(img);
+      const img = await generateHeroImage(`${module.id} ${module.title}`);
+      setModuleImage(img);
     };
     fetchImage();
   }, [module]);
@@ -28,31 +28,31 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({ module, onBack }) 
       {/* Header for Module with Dynamic Image Background */}
       <div className="relative bg-slate-900 text-white shadow-md">
         <div className="absolute inset-0 z-0 overflow-hidden">
-             {moduleImage ? (
-                <img 
-                  src={moduleImage} 
-                  alt={module.title}
-                  className="w-full h-full object-cover opacity-20"
-                />
-             ) : (
-                <div className="w-full h-full bg-gradient-to-r from-blue-900 to-slate-900 opacity-50"></div>
-             )}
-             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+          {moduleImage ? (
+            <img
+              src={moduleImage}
+              alt={module.title}
+              className="w-full h-full object-cover opacity-20"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-900 to-slate-900 opacity-50"></div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
         </div>
 
         <div className="relative z-10 p-6 md:p-8">
-            <button 
+          <button
             onClick={onBack}
             className="flex items-center text-sm text-blue-200 hover:text-white mb-6 transition-colors"
-            >
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
-            </button>
-            <div className="flex flex-col md:flex-row md:items-baseline md:space-x-4">
+          </button>
+          <div className="flex flex-col md:flex-row md:items-baseline md:space-x-4">
             <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{module.id}: {module.title}</h1>
             <span className="text-blue-300 font-semibold mt-2 md:mt-0">Theme {module.theme}</span>
-            </div>
-            <p className="text-slate-300 mt-3 max-w-3xl">{module.description}</p>
+          </div>
+          <p className="text-slate-300 mt-3 max-w-3xl">{module.description}</p>
         </div>
       </div>
 
@@ -66,11 +66,10 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({ module, onBack }) 
                 <button
                   key={section.id}
                   onClick={() => setActiveSectionId(section.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeSectionId === section.id
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeSectionId === section.id
                       ? 'bg-blue-900 text-white'
                       : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                    }`}
                 >
                   <span className="opacity-70 mr-2">{section.id}</span>
                   {section.title}
@@ -88,10 +87,11 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({ module, onBack }) 
                 <BookOpen className="w-6 h-6 mr-3 text-blue-600" />
                 {activeSection.id} - {activeSection.title}
               </h2>
-              
-              <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-line">
-                {activeSection.content}
-              </div>
+
+              <div
+                className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: activeSection.content }}
+              />
 
               {activeSection.codeExample && (
                 <div className="mt-8 bg-slate-900 rounded-lg overflow-hidden shadow-md">
