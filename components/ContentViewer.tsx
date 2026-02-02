@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Module } from '../types';
-import { ArrowLeft, BookOpen, Terminal } from 'lucide-react';
-import { generateHeroImage } from '../services/geminiService';
+import { ArrowLeft, Book, Terminal } from 'lucide-react';
 
 interface ContentViewerProps {
   module: Module;
@@ -10,116 +10,133 @@ interface ContentViewerProps {
 
 export const ContentViewer: React.FC<ContentViewerProps> = ({ module, onBack }) => {
   const [activeSectionId, setActiveSectionId] = useState<string>(module.sections[0]?.id || "");
-  const [moduleImage, setModuleImage] = useState<string | null>(null);
 
   const activeSection = module.sections.find(s => s.id === activeSectionId);
 
-  useEffect(() => {
-    // Generate a specific image for this module when it loads
-    const fetchImage = async () => {
-      const img = await generateHeroImage(`${module.id} ${module.title}`);
-      setModuleImage(img);
-    };
-    fetchImage();
-  }, [module]);
+  const renderContent = (content: string) => {
+    return content.split('\n').map((line, index) => {
+      // Main Objective Header pattern: A2.2.1 or B2.1.1 ...
+      const headerMatch = line.match(/^([AB]\d+\.\d+\.\d+)\s+(.+)$/);
+      if (headerMatch) {
+        return (
+          <div key={index} className="mt-8 mb-4">
+            <h3 className="text-[18px] font-bold text-[#111827] leading-tight">
+              {headerMatch[1]} {headerMatch[2]}
+            </h3>
+          </div>
+        );
+      }
+
+      // Sub-point pattern: 1. Topologies: content
+      const subPointMatch = line.match(/^(\d+\.\s+[^:]+:)\s*(.*)$/);
+      if (subPointMatch) {
+        return (
+          <div key={index} className="ml-5 mb-6 flex items-start text-[15px] leading-relaxed">
+            <span className="font-bold text-[#2563eb] mr-2 shrink-0">{subPointMatch[1]}</span>
+            <span className="text-[#4b5563] font-normal">{subPointMatch[2]}</span>
+          </div>
+        );
+      }
+
+      // Numbered items without direct label or multi-line wraps
+      const listMatch = line.match(/^(\d+\.\s+)(.+)$/);
+      if (listMatch) {
+        return (
+          <div key={index} className="ml-5 mb-6 flex items-start text-[15px] leading-relaxed">
+            <span className="font-bold text-[#2563eb] mr-2 shrink-0">{listMatch[1]}</span>
+            <span className="text-[#4b5563] font-normal">{listMatch[2]}</span>
+          </div>
+        );
+      }
+
+      // Generic text/indented text (continuation of previous points)
+      if (!line.trim()) return <div key={index} className="h-6"></div>;
+
+      return (
+        <p key={index} className="text-[#4b5563] text-[15px] leading-relaxed mb-6 ml-14">
+          {line}
+        </p>
+      );
+    });
+  };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
-      {/* Header for Module with Dynamic Image Background */}
-      <div className="relative bg-slate-900 text-white shadow-md">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          {moduleImage ? (
-            <img
-              src={moduleImage}
-              alt={module.title}
-              className="w-full h-full object-cover opacity-20"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-900 to-slate-900 opacity-50"></div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent"></div>
+    <div className="flex flex-col h-full bg-[#f8fafc]">
+      {/* Navigation Header */}
+      <div className="bg-[#1e3a8a] text-white p-6 md:p-8 shadow-sm print:hidden">
+        <button 
+          onClick={onBack}
+          className="flex items-center text-sm text-blue-200 hover:text-white mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Dashboard
+        </button>
+        <div className="flex flex-col md:flex-row md:items-baseline md:space-x-4">
+          <h1 className="text-3xl font-bold text-white">{module.id}: {module.title}</h1>
+          <span className="text-blue-300 font-semibold mt-1">Theme {module.theme}</span>
         </div>
-
-        <div className="relative z-10 p-6 md:p-8">
-          <button
-            onClick={onBack}
-            className="flex items-center text-sm text-blue-200 hover:text-white mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </button>
-          <div className="flex flex-col md:flex-row md:items-baseline md:space-x-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{module.id}: {module.title}</h1>
-            <span className="text-blue-300 font-semibold mt-2 md:mt-0">Theme {module.theme}</span>
-          </div>
-          <p className="text-slate-300 mt-3 max-w-3xl">{module.description}</p>
-        </div>
+        <p className="text-slate-300 mt-2 max-w-3xl">{module.description}</p>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar for Sections */}
-        <aside className="w-64 bg-slate-100 border-r border-slate-200 overflow-y-auto hidden md:block">
-          <div className="p-4">
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Topics</h3>
+        {/* Sidebar - Matching image exactly with #eff3f6 background */}
+        <aside className="w-[280px] bg-[#eff3f6] border-r border-slate-200 overflow-y-auto hidden md:block">
+          <div className="p-4 pt-6">
+            <h3 className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-[0.15em] mb-4 px-3">Topics</h3>
             <nav className="space-y-1">
               {module.sections.map((section) => (
                 <button
                   key={section.id}
                   onClick={() => setActiveSectionId(section.id)}
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${activeSectionId === section.id
-                      ? 'bg-blue-900 text-white'
-                      : 'text-slate-600 hover:bg-slate-200'
-                    }`}
+                  className={`w-full text-left px-3 py-3 rounded-md text-[13px] font-medium transition-all ${
+                    activeSectionId === section.id
+                      ? 'bg-[#1e3a8a] text-white shadow-md'
+                      : 'text-[#64748b] hover:bg-[#e2e8f0]'
+                  }`}
                 >
-                  <span className="opacity-70 mr-2">{section.id}</span>
-                  {section.title}
+                  {section.id} {section.title}
                 </button>
               ))}
             </nav>
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-10 scroll-smooth">
+        {/* Main Content Area - White page with exact padding and iconography */}
+        <main className="flex-1 overflow-y-auto p-8 md:p-14 bg-white">
           {activeSection ? (
-            <div className="max-w-4xl mx-auto animate-fadeIn">
-              <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center">
-                <BookOpen className="w-6 h-6 mr-3 text-blue-600" />
-                {activeSection.id} - {activeSection.title}
-              </h2>
-
-              <div
-                className="prose prose-slate max-w-none text-slate-700 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: activeSection.content }}
-              />
+            <div className="max-w-[900px] mx-auto">
+              {/* Header section with book icon */}
+              <div className="flex items-center text-[#111827] mb-12 border-b border-slate-50 pb-4">
+                <Book className="w-6 h-6 text-[#2563eb] mr-4" />
+                <h2 className="text-[24px] font-bold tracking-tight">
+                  {activeSection.id} - {activeSection.title}
+                </h2>
+              </div>
+              
+              <div className="content-render antialiased">
+                {renderContent(activeSection.content)}
+              </div>
 
               {activeSection.codeExample && (
-                <div className="mt-8 bg-slate-900 rounded-lg overflow-hidden shadow-md">
-                  <div className="bg-slate-800 px-4 py-2 flex items-center justify-between border-b border-slate-700">
-                    <div className="flex items-center text-slate-300">
+                <div className="mt-20 bg-[#0f172a] rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
+                  <div className="bg-[#1e293b] px-5 py-3 flex items-center justify-between border-b border-slate-700">
+                    <div className="flex items-center text-slate-400">
                       <Terminal className="w-4 h-4 mr-2" />
-                      <span className="text-xs font-mono">example.py</span>
-                    </div>
-                    <div className="flex space-x-1.5">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                      <span className="text-[11px] font-mono font-bold uppercase tracking-widest">Technical Implementation</span>
                     </div>
                   </div>
-                  <div className="p-4 overflow-x-auto">
-                    <pre className="text-emerald-300 text-sm font-mono">
+                  <div className="p-6 overflow-x-auto">
+                    <pre className="text-emerald-400 text-[14px] font-mono leading-relaxed">
                       <code>{activeSection.codeExample}</code>
                     </pre>
-                  </div>
-                  <div className="bg-slate-950 px-4 py-2 text-xs text-slate-500 text-right">
-                    Python 3.11
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-400">
-              Select a topic to begin learning.
+            <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-4">
+               <Book className="w-12 h-12 opacity-20" />
+               <p className="font-medium">Select a topic from the sidebar to start reading.</p>
             </div>
           )}
         </main>

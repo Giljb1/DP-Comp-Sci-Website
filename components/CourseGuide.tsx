@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Printer, FileText, Cpu, Network, Database, BrainCircuit, Code, Terminal, Layers, Book, PenTool, CheckCircle, Clock, List, ExternalLink } from 'lucide-react';
 
@@ -90,7 +91,7 @@ export const CourseGuide: React.FC<CourseGuideProps> = ({ onBack }) => {
                         <section key={section.id} id={section.id} className="scroll-mt-32 relative">
                             <div className="flex items-center mb-8 border-b border-slate-200 pb-4">
                                 <span className="bg-blue-50 p-3 rounded-xl text-blue-700 mr-4 print:hidden shadow-sm">
-                                    {React.cloneElement(section.icon as React.ReactElement, { size: 28 })}
+                                  {section.icon}
                                 </span>
                                 <h2 className="text-3xl font-bold text-slate-900">{section.title}</h2>
                             </div>
@@ -150,7 +151,7 @@ const GUIDE_DATA = [
   {
     id: "intro",
     title: "Nature of the Subject",
-    icon: <Book />,
+    icon: <Book size={28} />,
     content: (
       <>
         <p className="text-lg text-slate-600 mb-8 leading-8">
@@ -195,7 +196,7 @@ const GUIDE_DATA = [
   {
     id: "theme-a",
     title: "Theme A: Concepts of Computer Science",
-    icon: <Cpu />,
+    icon: <Cpu size={28} />,
     content: (
       <div className="space-y-8">
         <p className="text-slate-600">Theme A focuses on the fundamental concepts of computer science that underpin the design and operation of computer systems.</p>
@@ -241,7 +242,7 @@ const GUIDE_DATA = [
   {
     id: "theme-b",
     title: "Theme B: Computational Thinking",
-    icon: <Terminal />,
+    icon: <Terminal size={28} />,
     content: (
       <div className="space-y-8">
         <p className="text-slate-600">Theme B focuses on problem-solving, algorithmic thinking, and the practical application of programming skills.</p>
@@ -297,7 +298,7 @@ const GUIDE_DATA = [
   {
     id: "assessment",
     title: "Assessment Outline",
-    icon: <PenTool />,
+    icon: <PenTool size={28} />,
     content: (
       <div className="space-y-10">
         <div className="grid md:grid-cols-2 gap-8">
@@ -380,7 +381,7 @@ const GUIDE_DATA = [
   {
     id: "ia",
     title: "Internal Assessment",
-    icon: <FileText />,
+    icon: <FileText size={28} />,
     content: (
       <div className="space-y-8">
         <p className="text-lg text-slate-700">
